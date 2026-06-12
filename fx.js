@@ -1,6 +1,22 @@
 var FX_URL="https://script.google.com/macros/s/AKfycbx_SNdibXwwzJj7A4ZG-LKHHLvTO8PgfWt65jAwwg7KwQ3RvPfJ4B4VK6VJPYDhi_kB/exec";
-var fxLive=[],fxHist=[],fxStats={},fxPlChart=null,fxDonut=null,fxPie=null,fxTab="1M",fxCbN=0;
+var FX_PAIRS={
+  XAUUSD:{label:"XAU / USD",cat:"Commodities - Gold",tv:"TVC:GOLD"},
+  USOIL:{label:"WTI Oil",cat:"Commodities - Oil",tv:"TVC:USOIL"},
+  EURUSD:{label:"EUR / USD",cat:"Forex - Major",tv:"FX:EURUSD"},
+  GBPUSD:{label:"GBP / USD",cat:"Forex - Major",tv:"FX:GBPUSD"},
+  USDJPY:{label:"USD / JPY",cat:"Forex - Major",tv:"FX:USDJPY"},
+  USDCHF:{label:"USD / CHF",cat:"Forex - Major",tv:"FX:USDCHF"},
+  USDCAD:{label:"USD / CAD",cat:"Forex - Major",tv:"FX:USDCAD"},
+  AUDUSD:{label:"AUD / USD",cat:"Forex - Major",tv:"FX:AUDUSD"},
+  NZDUSD:{label:"NZD / USD",cat:"Forex - Major",tv:"FX:NZDUSD"},
+  EURJPY:{label:"EUR / JPY",cat:"Forex - Cross",tv:"FX:EURJPY"},
+  GBPJPY:{label:"GBP / JPY",cat:"Forex - Cross",tv:"FX:GBPJPY"},
+  EURGBP:{label:"EUR / GBP",cat:"Forex - Cross",tv:"FX:EURGBP"},
+  CADJPY:{label:"CAD / JPY",cat:"Forex - Cross",tv:"FX:CADJPY"},
+  NZDJPY:{label:"NZD / JPY",cat:"Forex - Cross",tv:"FX:NZDJPY"}
+};
 var FX_COLORS=["#c9a84c","#4aaa4a","#5a8adc","#cc5555","#aa7acc","#5abaaa","#dc8a5a","#8adc5a","#dc5aaa","#5adcdc","#dcdc5a","#aa5a5a","#5a5adc","#aa8a5a"];
+var fxLive=[],fxHist=[],fxStats={},fxPlChart=null,fxDonut=null,fxPie=null,fxTab="1M",fxCbN=0;
 
 function fxTick(){
   var n=new Date();
@@ -36,52 +52,51 @@ function fxUpdateCard(s){
   var isA=st==="ACTIVE",isC=st==="CLOSED";
   var act=s.action.toUpperCase();
 
-  // Show card
   var card=document.getElementById("card-"+pair);
   if(!card)return;
   card.style.display="block";
   card.className="fx-card"+(isA?" active":isC?" closed":"");
 
-  // Pill
   var pill=document.getElementById("pill-"+pair);
   if(pill){pill.textContent=(isA?"* ":"")+st;pill.className="fx-pill"+(isA?" active":isC?" closed":"");}
 
-  // Cells
   var eEl=document.getElementById("entry-"+pair);
   if(eEl){eEl.textContent=s.entry||"--";eEl.className="fx-cell-v "+(s.entry?"entry":"empty");}
+
   var tEl=document.getElementById("tp-"+pair);
   if(tEl){tEl.textContent=s.tp||"--";tEl.className="fx-cell-v "+(s.tp?"tp":"empty");}
+
   var slEl=document.getElementById("sl-"+pair);
   if(slEl){slEl.textContent=s.sl||"--";slEl.className="fx-cell-v "+(s.sl?"sl":"empty");}
+
   var otEl=document.getElementById("ot-"+pair);
   if(otEl){otEl.textContent=s.openTime||"--";otEl.className="fx-cell-v "+(s.openTime?"time":"empty");}
 
-  // Action
   var aEl=document.getElementById("act-"+pair);
-  if(aEl){aEl.textContent=act==="BUY"?"BUY":act==="SELL"?"SELL":"WAITING";aEl.className="fx-action"+(act==="BUY"?" buy":act==="SELL"?" sell":"");}
+  if(aEl){
+    aEl.textContent=act==="BUY"?"BUY":act==="SELL"?"SELL":"WAITING";
+    aEl.className="fx-action"+(act==="BUY"?" buy":act==="SELL"?" sell":"");
+  }
 
-  // Running
   var rEl=document.getElementById("run-"+pair);
   if(rEl)rEl.textContent=isA?"RUNNING":"";
 
-  // Result row
   var resDiv=document.getElementById("res-"+pair);
-  if(resDiv){resDiv.className=isC?"fx-result show":"fx-result";}
-  if(isC&&s.closePrice){
+  if(resDiv)resDiv.className=isC?"fx-result show":"fx-result";
+
+  if(isC){
     var rtEl=document.getElementById("res-txt-"+pair);
-    if(rtEl)rtEl.textContent="CLOSED @ "+s.closePrice;
+    if(rtEl)rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
     var rcEl=document.getElementById("res-close-"+pair);
     if(rcEl)rcEl.textContent=s.openTime||"";
   }
 }
 
 function fxRenderCards(){
-  // Hide all cards first
   var allCards=document.querySelectorAll(".fx-card");
   for(var i=0;i<allCards.length;i++){allCards[i].style.display="none";}
 
   var noSig=document.getElementById("fx-no-signal");
-
   if(!fxLive.length){
     if(noSig)noSig.style.display="block";
     return;
@@ -165,7 +180,12 @@ function fxRenderPL(){
   for(var i=0;i<fxHist.length;i++){
     var r=fxHist[i];
     if(fxTab==="ALL"){rows.push(r);continue;}
-    try{var p=r.closeDateTime.split(" ")[0].split("/");var tp2=r.closeDateTime.split(" ")[1]?r.closeDateTime.split(" ")[1].split(":"):[0,0];var dt=new Date(Date.UTC(new Date().getFullYear(),parseInt(p[1])-1,parseInt(p[0]),parseInt(tp2[0]),parseInt(tp2[1]))).getTime();if(dt>=cutoff)rows.push(r);}catch(e){rows.push(r);}
+    try{
+      var p=r.closeDateTime.split(" ")[0].split("/");
+      var tp2=r.closeDateTime.split(" ")[1]?r.closeDateTime.split(" ")[1].split(":"):[0,0];
+      var dt=new Date(Date.UTC(new Date().getFullYear(),parseInt(p[1])-1,parseInt(p[0]),parseInt(tp2[0]),parseInt(tp2[1]))).getTime();
+      if(dt>=cutoff)rows.push(r);
+    }catch(e){rows.push(r);}
   }
   var cum=0,labels=[],vals=[];
   for(var j=rows.length-1;j>=0;j--){cum+=parseInt(rows[j].pips)||0;labels.push(rows[j].closeDateTime.split(" ")[0]||j+1);vals.push(cum);}
@@ -185,18 +205,36 @@ function fxRenderPipBars(){
   var maxA=1;
   for(var i=0;i<pairs.length;i++){if(Math.abs(s.pairPips[pairs[i]])>maxA)maxA=Math.abs(s.pairPips[pairs[i]]);}
   var html="";
-  for(var j=0;j<pairs.length;j++){var p=pairs[j],v=s.pairPips[p],pos=v>=0,pct=Math.round(Math.abs(v)/maxA*100),col=pos?"var(--gr)":"var(--rd)";html+="<div class='fx-pip-row'><div class='fx-pip-lbl'>"+p+"</div><div class='fx-pip-out'><div class='fx-pip-in' style='width:"+pct+"%;background:"+col+"'></div></div><div class='fx-pip-val' style='color:"+col+"'>"+(pos?"+":"")+v+"</div></div>";}
+  for(var j=0;j<pairs.length;j++){
+    var p=pairs[j],v=s.pairPips[p],pos=v>=0,pct=Math.round(Math.abs(v)/maxA*100),col=pos?"var(--gr)":"var(--rd)";
+    html+="<div class='fx-pip-row'><div class='fx-pip-lbl'>"+p+"</div><div class='fx-pip-out'><div class='fx-pip-in' style='width:"+pct+"%;background:"+col+"'></div></div><div class='fx-pip-val' style='color:"+col+"'>"+(pos?"+":"")+v+"</div></div>";
+  }
   var pb=document.getElementById("fx-pipbars");if(pb)pb.innerHTML=html;
 }
 
 function fxFetchLive(){
-  fxGfetch("live").then(function(d){fxLive=Array.isArray(d)?d:[];fxRenderCards();}).catch(function(e){console.warn("live",e);});
+  fxGfetch("live").then(function(d){
+    fxLive=Array.isArray(d)?d:[];
+    fxRenderCards();
+  }).catch(function(e){console.warn("live",e);});
 }
+
 function fxFetchHist(){
-  fxGfetch("history").then(function(d){fxHist=Array.isArray(d)?d:[];fxRenderHist();fxRenderPL();}).catch(function(e){console.warn("hist",e);});
+  fxGfetch("history").then(function(d){
+    fxHist=Array.isArray(d)?d:[];
+    fxRenderHist();
+    fxRenderPL();
+  }).catch(function(e){console.warn("hist",e);});
 }
+
 function fxFetchStats(){
-  fxGfetch("stats").then(function(d){fxStats=d||{};fxRenderStats();fxRenderDonut();fxRenderPie();fxRenderPipBars();}).catch(function(e){console.warn("stats",e);});
+  fxGfetch("stats").then(function(d){
+    fxStats=d||{};
+    fxRenderStats();
+    fxRenderDonut();
+    fxRenderPie();
+    fxRenderPipBars();
+  }).catch(function(e){console.warn("stats",e);});
 }
 
 fxTick();
