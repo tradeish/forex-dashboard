@@ -121,7 +121,7 @@ function fxRenderHist(){
     var h=fxHist[i];
     var w=h.result&&h.result.indexOf("TP")>-1;
     var dc=h.action==="BUY"?"buy":"sell";
-    var rc=w?"win":"loss";
+    var isManual=h.result&&h.result.indexOf("MANUAL")>-1;var rc=w?"win":isManual?"manual":"loss";
     var pn=parseInt(h.pips)||0;
     html+="<tr><td class='muted'>"+h.closeDateTime+"</td><td class='pair'>"+h.pair+"</td><td class='"+dc+"'>"+h.action+"</td><td>"+h.entry+"</td><td>"+h.closePrice+"</td><td class='"+rc+"'>"+(pn>0?"+"+pn:pn)+"</td><td class='"+rc+"'>"+h.gainLoss+"</td><td class='"+rc+"'>"+(w?"TP HIT":"SL HIT")+"</td></tr>";
   }
