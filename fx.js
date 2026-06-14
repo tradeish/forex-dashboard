@@ -79,7 +79,7 @@ function fxUpdateCard(s){
   }
 
   var rEl=document.getElementById("run-"+pair);
-  if(rEl)rEl.textContent=isA?"RUNNING":"";
+  if(rEl){rEl.textContent=isA?"RUNNING":"";rEl.style.display=isA?"flex":"none";}
 
   var resDiv=document.getElementById("res-"+pair);
   if(resDiv)resDiv.className=isC?"fx-result show":"fx-result";
