@@ -88,7 +88,7 @@ function fxUpdateCard(s){
     var rtEl=document.getElementById("res-txt-"+pair);
     if(rtEl)rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
     var rcEl=document.getElementById("res-close-"+pair);
-    if(rcEl)rcEl.textContent=s.closePrice?"Closed: "+new Date().toUTCString().slice(5,22)+" UTC":"";
+    if(rcEl)rcEl.textContent=s.openTime||"";
   }
 }
 
@@ -123,7 +123,7 @@ function fxRenderHist(){
     var dc=h.action==="BUY"?"buy":"sell";
     var isManual=h.result&&h.result.indexOf("MANUAL")>-1;var rc=w?"win":isManual?"manual":"loss";
     var pn=parseInt(h.pips)||0;
-    html+="<tr><td class='muted'>"+h.closeDateTime+"</td><td class='pair'>"+h.pair+"</td><td class='"+dc+"'>"+h.action+"</td><td>"+h.entry+"</td><td>"+h.closePrice+"</td><td class='"+rc+"'>"+(pn>0?"+"+pn:pn)+"</td><td class='"+rc+"'>"+h.gainLoss+"</td><td class='"+rc+"'>"+(w?"TP HIT":"SL HIT")+"</td></tr>";
+    html+="<tr><td class='muted'>"+h.closeDateTime+"</td><td class='pair'>"+h.pair+"</td><td class='"+dc+"'>"+h.action+"</td><td>"+h.entry+"</td><td>"+h.closePrice+"</td><td class='"+rc+"'>"+(pn>0?"+"+pn:pn)+"</td><td class='"+rc+"'>"+h.gainLoss+"</td><td class='"+rc+"'>"+(w?"TP HIT ✅":isManual?"MANUAL 🔵":"SL HIT ❌")+"</td></tr>";
   }
   tb.innerHTML=html;
 }
