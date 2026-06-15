@@ -88,7 +88,7 @@ function fxUpdateCard(s){
     var rtEl=document.getElementById("res-txt-"+pair);
     if(rtEl)rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
     var rcEl=document.getElementById("res-close-"+pair);
-    if(rcEl)rcEl.textContent=s.openTime||"";
+    if(rcEl)rcEl.textContent=s.closeTime?"Closed: "+s.closeTime:"";
   }
 }
 
