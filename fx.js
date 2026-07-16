@@ -96,6 +96,24 @@ function fxUpdateCard(s){
   // Signal Type
   var stEl=document.getElementById("sigtype-"+pair);
   if(stEl)stEl.textContent=s.signalType||"";
+
+  // NEW SIGNAL badge — show for 5 min after open time
+  var nbEl=document.getElementById("new-badge-"+pair);
+  if(nbEl){
+    var showNew=false;
+    if(s.openTime && isA){
+      try{
+        var op=s.openTime.replace(" UTC","").trim().split(" ");
+        var dp=op[0].split("/");
+        var tp3=op[1].split(":");
+        var yr=new Date().getFullYear();
+        var openMs=new Date(Date.UTC(yr,parseInt(dp[1])-1,parseInt(dp[0]),parseInt(tp3[0]),parseInt(tp3[1]))).getTime();
+        var diffMin=(Date.now()-openMs)/60000;
+        if(diffMin>=0&&diffMin<=5)showNew=true;
+      }catch(e){}
+    }
+    nbEl.style.display=showNew?"block":"none";
+  }
 }
 
 function fxRenderCards(){
