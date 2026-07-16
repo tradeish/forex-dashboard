@@ -95,7 +95,10 @@ function fxUpdateCard(s){
   }
   // Signal Type
   var stEl=document.getElementById("sigtype-"+pair);
-  if(stEl)stEl.textContent=s.signalType||"";
+  if(stEl){
+    stEl.textContent=s.signalType||"";
+    if(s.signalType){stEl.style.setProperty("display","flex","important");}
+  }
 
   // NEW SIGNAL badge — show for 5 min after open time
   var nbEl=document.getElementById("new-badge-"+pair);
@@ -112,7 +115,7 @@ function fxUpdateCard(s){
         if(diffMin>=0&&diffMin<=5)showNew=true;
       }catch(e){}
     }
-    nbEl.style.display=showNew?"block":"none";
+    nbEl.style.setProperty("display",showNew?"inline-block":"none","important");
   }
 }
 
