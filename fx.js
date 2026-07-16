@@ -86,10 +86,16 @@ function fxUpdateCard(s){
 
   if(isC){
     var rtEl=document.getElementById("res-txt-"+pair);
-    if(rtEl)rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
+    if(rtEl){
+      rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
+      rtEl.className="fx-res-txt"+(s.closeResult==="TP"?" win":s.closeResult==="SL"?" loss":" manual");
+    }
     var rcEl=document.getElementById("res-close-"+pair);
     if(rcEl)rcEl.textContent=s.closeTime?"Closed: "+s.closeTime:"";
   }
+  // Signal Type
+  var stEl=document.getElementById("sigtype-"+pair);
+  if(stEl)stEl.textContent=s.signalType||"";
 }
 
 function fxRenderCards(){
