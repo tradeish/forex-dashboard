@@ -281,6 +281,40 @@ function fxFetchStats(){
   }).catch(function(e){console.warn("stats",e);});
 }
 
+// Auto detect dark mode and update TV iframes
+function fxUpdateTVTheme(){
+  var isDark=document.body.classList.contains("drK")||!!document.querySelector(".drK");
+  var theme=isDark?"dark":"light";
+  var iframes=document.querySelectorAll("iframe[src*='tradingview-widget']");
+  for(var i=0;i<iframes.length;i++){
+    var src=iframes[i].src;
+    if(isDark){src=src.replace("colorTheme%22%3A%22light","colorTheme%22%3A%22dark");}
+    else{src=src.replace("colorTheme%22%3A%22dark","colorTheme%22%3A%22light");}
+    if(iframes[i].src!==src)iframes[i].src=src;
+  }
+}
+
+function fxSetTVTheme(){
+  var isDark=document.body.classList.contains("drK")||!!document.querySelector(".drK");
+  var iframes=document.querySelectorAll(".fxdb iframe");
+  for(var i=0;i<iframes.length;i++){
+    var src=iframes[i].src;
+    if(!src)continue;
+    if(isDark){
+      src=src.replace("colorTheme%22%3A%22light","colorTheme%22%3A%22dark");
+    } else {
+      src=src.replace("colorTheme%22%3A%22dark","colorTheme%22%3A%22light");
+    }
+    if(iframes[i].src!==src)iframes[i].src=src;
+  }
+}
+
+// Watch for dark mode class change
+var fxDarkObs=new MutationObserver(function(){fxSetTVTheme();});
+fxDarkObs.observe(document.body,{attributes:true,attributeFilter:["class"]});
+var fxHtml=document.querySelector("html");
+if(fxHtml)fxDarkObs.observe(fxHtml,{attributes:true,attributeFilter:["class"]});
+
 fxTick();
 setInterval(fxTick,1000);
 fxFetchLive();
@@ -289,3 +323,5 @@ fxFetchStats();
 setInterval(fxFetchLive,15000);
 setInterval(fxFetchHist,60000);
 setInterval(fxFetchStats,60000);
+setTimeout(fxSetTVTheme,1500);
+setTimeout(fxUpdateTVTheme,2000);
