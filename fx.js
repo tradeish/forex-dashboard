@@ -110,8 +110,16 @@ function fxShowRelated(pair, entry){
   relDiv.className = "fx-related show";
 
   var imgEl = document.getElementById("related-img-"+pair);
-  if(imgEl && imgUrl){
-    imgEl.outerHTML = "<img class='fx-related-img' id='related-img-"+pair+"' src='"+imgUrl+"' alt='"+title+"' loading='lazy'>";
+  if(imgEl){
+    if(imgUrl){
+      var img = document.createElement("img");
+      img.className = "fx-related-img";
+      img.id = "related-img-"+pair;
+      img.src = imgUrl;
+      img.alt = title;
+      img.loading = "lazy";
+      imgEl.parentNode.replaceChild(img, imgEl);
+    }
   }
 
   var titleEl = document.getElementById("related-title-"+pair);
