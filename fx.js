@@ -73,7 +73,7 @@ function fxFetchRelatedLabel(pair, labels, idx){
     delete window[cbName];
     fxFetchRelatedLabel(pair, labels, idx+1);
   };
-  document.head.appendChild(sc);
+  (document.head||document.body||document.documentElement).appendChild(sc);
 }
 
 function fxShowRelated(pair, entry){
@@ -165,7 +165,7 @@ function fxGfetch(type){
     window[cb]=function(d){clearTimeout(tm);delete window[cb];if(sc.parentNode)sc.parentNode.removeChild(sc);res(d);};
     sc.src=FX_URL+"?type="+type+"&callback="+cb+"&t="+Date.now();
     sc.onerror=function(){clearTimeout(tm);delete window[cb];if(sc.parentNode)sc.parentNode.removeChild(sc);rej("err");};
-    document.head.appendChild(sc);
+    (document.head||document.body||document.documentElement).appendChild(sc);
   });
 }
 
