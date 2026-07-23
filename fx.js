@@ -47,7 +47,7 @@ function fxLoadRelated(pair){
 function fxFetchRelatedLabel(pair, labels, idx){
   if(idx >= labels.length)return;
   var label = labels[idx];
-  var url = FX_BLOG+"/feeds/posts/default/-/"+encodeURIComponent(label)+"?alt=json&max-results=1";
+  var url = FX_BLOG+"/feeds/posts/summary/-/"+encodeURIComponent(label)+"?alt=json&max-results=1";
   
   var sc = document.createElement("script");
   var cbName = "_fxrel_"+pair+"_"+idx;
