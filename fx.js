@@ -15,6 +15,112 @@ var FX_PAIRS={
   CADJPY:{label:"CAD / JPY",cat:"Forex - Cross",tv:"FX:CADJPY"},
   NZDJPY:{label:"NZD / JPY",cat:"Forex - Cross",tv:"FX:NZDJPY"}
 };
+var FX_RELATED_LABELS = {
+  XAUUSD: ["Gold Forecast","Gold Daily Analysis","Gold News","XAUUSD Strategy"],
+  USOIL:  ["USOIL Update"],
+  EURUSD: ["EURUSD Update"],
+  GBPUSD: ["GBPUSD Update"],
+  USDJPY: ["Major Pairs"],
+  USDCHF: ["Major Pairs"],
+  USDCAD: ["Major Pairs"],
+  AUDUSD: ["Major Pairs"],
+  NZDUSD: ["Major Pairs"],
+  EURJPY: ["Minor Pairs"],
+  GBPJPY: ["Minor Pairs"],
+  EURGBP: ["Minor Pairs"],
+  CADJPY: ["Minor Pairs"],
+  NZDJPY: ["Minor Pairs"]
+};
+
+var FX_BLOG = "https://www.tradingwithishaan.com";
+var fxRelatedLoaded = {};
+
+function fxLoadRelated(pair){
+  if(fxRelatedLoaded[pair])return;
+  var labels = FX_RELATED_LABELS[pair];
+  if(!labels||!labels.length)return;
+  
+  // Try first label
+  fxFetchRelatedLabel(pair, labels, 0);
+}
+
+function fxFetchRelatedLabel(pair, labels, idx){
+  if(idx >= labels.length)return;
+  var label = labels[idx];
+  var url = FX_BLOG+"/feeds/posts/default/-/"+encodeURIComponent(label)+"?alt=json&max-results=1";
+  
+  var sc = document.createElement("script");
+  var cbName = "_fxrel_"+pair+"_"+idx;
+  window[cbName] = function(data){
+    if(sc.parentNode)sc.parentNode.removeChild(sc);
+    delete window[cbName];
+    try{
+      var entries = data.feed.entry;
+      if(entries && entries.length > 0){
+        fxShowRelated(pair, entries[0]);
+        fxRelatedLoaded[pair] = true;
+      } else {
+        // Try next label
+        fxFetchRelatedLabel(pair, labels, idx+1);
+      }
+    }catch(e){
+      fxFetchRelatedLabel(pair, labels, idx+1);
+    }
+  };
+  sc.src = url + "&callback="+cbName;
+  sc.onerror = function(){
+    if(sc.parentNode)sc.parentNode.removeChild(sc);
+    delete window[cbName];
+    fxFetchRelatedLabel(pair, labels, idx+1);
+  };
+  document.head.appendChild(sc);
+}
+
+function fxShowRelated(pair, entry){
+  var relDiv = document.getElementById("related-"+pair);
+  if(!relDiv)return;
+
+  // Get title
+  var title = entry.title ? entry.title.$t : "";
+  
+  // Get link
+  var link = "#";
+  if(entry.link){
+    for(var i=0;i<entry.link.length;i++){
+      if(entry.link[i].rel==="alternate"){link=entry.link[i].href;break;}
+    }
+  }
+  
+  // Get image
+  var imgUrl = "";
+  if(entry.media$thumbnail){
+    imgUrl = entry.media$thumbnail.url.replace("/s72-c/","/s200-c/");
+  }
+  
+  // Get description
+  var desc = "";
+  if(entry.summary){
+    desc = entry.summary.$t.replace(/<[^>]+>/g,"").substring(0,80)+"...";
+  } else if(entry.content){
+    desc = entry.content.$t.replace(/<[^>]+>/g,"").substring(0,80)+"...";
+  }
+
+  // Update DOM
+  relDiv.href = link;
+  relDiv.className = "fx-related show";
+
+  var imgEl = document.getElementById("related-img-"+pair);
+  if(imgEl && imgUrl){
+    imgEl.outerHTML = "<img class='fx-related-img' id='related-img-"+pair+"' src='"+imgUrl+"' alt='"+title+"' loading='lazy'>";
+  }
+
+  var titleEl = document.getElementById("related-title-"+pair);
+  if(titleEl)titleEl.textContent = title;
+
+  var descEl = document.getElementById("related-desc-"+pair);
+  if(descEl)descEl.textContent = desc;
+}
+
 var FX_COLORS=["#c9a84c","#4aaa4a","#5a8adc","#cc5555","#aa7acc","#5abaaa","#dc8a5a","#8adc5a","#dc5aaa","#5adcdc","#dcdc5a","#aa5a5a","#5a5adc","#aa8a5a"];
 var fxLive=[],fxHist=[],fxStats={},fxPlChart=null,fxDonut=null,fxPie=null,fxTab="1M",fxCbN=0;
 
@@ -151,6 +257,7 @@ function fxRenderCards(){
   for(var j=0;j<fxLive.length;j++){
     fxUpdateCard(fxLive[j]);
     if(fxLive[j].status.toUpperCase()==="ACTIVE")activeN++;
+    fxLoadRelated(fxLive[j].pair);
   }
   var ael=document.getElementById("fx-active");
   if(ael)ael.textContent=activeN;
