@@ -110,20 +110,23 @@ function fxShowRelated(pair, entry){
   relDiv.className = "fxc-post show";
 
   var imgEl = document.getElementById("related-img-"+pair);
-  if(imgEl){
-    if(imgUrl){
-      var img = document.createElement("img");
-      img.className = "fxc-post-img";
-      img.id = "related-img-"+pair;
-      img.src = imgUrl;
-      img.alt = title;
-      img.loading = "lazy";
-      img.style.cssText = "width:60px !important;height:44px !important;max-width:60px !important;object-fit:cover;border-radius:4px;flex-shrink:0;display:block;";
-      imgEl.parentNode.replaceChild(img, imgEl);
-    } else {
-      imgEl.style.cssText = "width:60px;height:44px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(0,0,0,0.05);";
-    }
+if(imgEl){
+  if(imgUrl){
+    var img = document.createElement("img");
+    img.className = "fx-related-img";
+    img.id = "related-img-"+pair;
+    img.src = imgUrl;
+    img.alt = title;
+    img.loading = "lazy";
+    img.style.setProperty("width","58px","important");
+    img.style.setProperty("height","46px","important");
+    img.style.setProperty("max-width","58px","important");
+    img.style.setProperty("max-height","46px","important");
+    img.style.setProperty("object-fit","cover","important");
+    img.style.setProperty("border-radius","5px","important");
+    imgEl.parentNode.replaceChild(img, imgEl);
   }
+}
 
   var titleEl = document.getElementById("related-title-"+pair);
   if(titleEl)titleEl.textContent = title;
