@@ -107,18 +107,21 @@ function fxShowRelated(pair, entry){
 
   // Update DOM
   relDiv.href = link;
-  relDiv.className = "fx-related show";
+  relDiv.className = "fxc-post show";
 
   var imgEl = document.getElementById("related-img-"+pair);
   if(imgEl){
     if(imgUrl){
       var img = document.createElement("img");
-      img.className = "fx-related-img";
+      img.className = "fxc-post-img";
       img.id = "related-img-"+pair;
       img.src = imgUrl;
       img.alt = title;
       img.loading = "lazy";
+      img.style.cssText = "width:60px !important;height:44px !important;max-width:60px !important;object-fit:cover;border-radius:4px;flex-shrink:0;display:block;";
       imgEl.parentNode.replaceChild(img, imgEl);
+    } else {
+      imgEl.style.cssText = "width:60px;height:44px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(0,0,0,0.05);";
     }
   }
 
