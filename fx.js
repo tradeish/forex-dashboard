@@ -107,26 +107,26 @@ function fxShowRelated(pair, entry){
 
   // Update DOM
   relDiv.href = link;
-  relDiv.className = "fxc-post show";
+  relDiv.className = "fx-related show";
 
   var imgEl = document.getElementById("related-img-"+pair);
-if(imgEl){
-  if(imgUrl){
-    var img = document.createElement("img");
-    img.className = "fx-related-img";
-    img.id = "related-img-"+pair;
-    img.src = imgUrl;
-    img.alt = title;
-    img.loading = "lazy";
-    img.style.setProperty("width","58px","important");
-    img.style.setProperty("height","46px","important");
-    img.style.setProperty("max-width","58px","important");
-    img.style.setProperty("max-height","46px","important");
-    img.style.setProperty("object-fit","cover","important");
-    img.style.setProperty("border-radius","5px","important");
-    imgEl.parentNode.replaceChild(img, imgEl);
+  if(imgEl){
+    if(imgUrl){
+      var img = document.createElement("img");
+      img.className = "fx-related-img";
+      img.id = "related-img-"+pair;
+      img.src = imgUrl;
+      img.alt = title;
+      img.loading = "lazy";
+      img.style.setProperty("width","58px","important");
+      img.style.setProperty("height","46px","important");
+      img.style.setProperty("max-width","58px","important");
+      img.style.setProperty("max-height","46px","important");
+      img.style.setProperty("object-fit","cover","important");
+      img.style.setProperty("border-radius","5px","important");
+      imgEl.parentNode.replaceChild(img, imgEl);
+    }
   }
-}
 
   var titleEl = document.getElementById("related-title-"+pair);
   if(titleEl)titleEl.textContent = title;
