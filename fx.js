@@ -157,13 +157,13 @@ function fxTick(){
   if(el)el.textContent=pad(h)+":"+pad(m)+":"+pad(s)+" UTC";
   var t=h*60+m;
   var se=document.getElementById("fx-session");
-  if(!se)return;
+
+  var day=n.getUTCDay(); // 0=Sun, 6=Sat
+  var isWeekend=(day===0||(day===5&&t>=1320)||(day===6));
 
   // Market open/closed/weekend
   var mkt=document.getElementById("fx-mkt-status");
   if(mkt){
-    var day=n.getUTCDay(); // 0=Sun, 6=Sat
-    var isWeekend=(day===0||(day===5&&t>=1320)||(day===6));
     if(isWeekend){
       mkt.textContent="WEEKEND CLOSED";
       mkt.className="fx-mkt-weekend";
@@ -175,7 +175,14 @@ function fxTick(){
       mkt.className="fx-mkt-closed";
     }
   }
-  if(t>=480&&t<540){se.className="fx-session";se.textContent="OVERLAP SESSION";}
+
+  if(!se)return;
+
+  if(isWeekend){
+    se.className="fx-session off";
+    se.textContent="WEEKEND CLOSED";
+  }
+  else if(t>=480&&t<540){se.className="fx-session";se.textContent="OVERLAP SESSION";}
   else if(t>=480&&t<780){se.className="fx-session";se.textContent="LONDON SESSION";}
   else if(t>=780&&t<960){se.className="fx-session";se.textContent="NEW YORK SESSION";}
   else if(t>=0&&t<480||t>=1380){se.className="fx-session";se.textContent="TOKYO SESSION";}
