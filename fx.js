@@ -91,13 +91,32 @@ function fxShowRelated(pair, entry){
     }
   }
   
-  // Get image
+  // Get image (HD) - same logic as the blog theme's own related-posts widget:
+  // prefer the full content image over the small thumbnail, then force high resolution
   var imgUrl = "";
-  if(entry.media$thumbnail){
-    imgUrl = entry.media$thumbnail.url.replace("/s72-c/","/s200-c/");
+  var rawHtml = "";
+  if(entry.content && entry.content.$t){
+    rawHtml = entry.content.$t;
+  } else if(entry.summary && entry.summary.$t){
+    rawHtml = entry.summary.$t;
+  }
+  var imgMatch = rawHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if(imgMatch && imgMatch[1]){
+    imgUrl = imgMatch[1];
+  }
+  if(!imgUrl && entry.media$thumbnail && entry.media$thumbnail.url){
+    imgUrl = entry.media$thumbnail.url;
+  }
+  if(imgUrl){
+    imgUrl = imgUrl
+      .replace(/\/s[0-9]+(\-c)?\//g, "/s1200/")
+      .replace(/=s[0-9]+(\-c)?/g, "=s1200")
+      .replace(/\/w[0-9]+\-h[0-9]+\-p\-k\-no\-nu\//g, "/s1200/")
+      .replace(/=w[0-9]+\-h[0-9]+\-p\-k\-no\-nu/g, "=s1200");
   }
   
   // Get description
+
   var desc = "";
   if(entry.summary){
     desc = entry.summary.$t.replace(/<[^>]+>/g,"").substring(0,80)+"...";
