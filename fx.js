@@ -148,6 +148,7 @@ function fxShowRelated(pair, entry){
 
 var FX_COLORS=["#c9a84c","#4aaa4a","#5a8adc","#cc5555","#aa7acc","#5abaaa","#dc8a5a","#8adc5a","#dc5aaa","#5adcdc","#dcdc5a","#aa5a5a","#5a5adc","#aa8a5a"];
 var fxLive=[],fxHist=[],fxStats={},fxPlChart=null,fxDonut=null,fxPie=null,fxTab="1M",fxCbN=0;
+var fxHistShown=5;
 
 function fxTick(){
   var n=new Date();
@@ -298,10 +299,16 @@ function fxRenderCards(){
 function fxRenderHist(){
   var tb=document.getElementById("fx-hist");
   if(!tb)return;
-  if(!fxHist.length){tb.innerHTML="<tr><td colspan='8' class='fx-empty'>No closed trades yet</td></tr>";return;}
+  if(!fxHist.length){
+    tb.innerHTML="<tr><td colspan='8' class='fx-empty'>No closed trades yet</td></tr>";
+    var mw0=document.getElementById("fx-hist-more-wrap");
+    if(mw0)mw0.style.display="none";
+    return;
+  }
+  var rows=fxHist.slice(0,fxHistShown);
   var html="";
-  for(var i=0;i<fxHist.length;i++){
-    var h=fxHist[i];
+  for(var i=0;i<rows.length;i++){
+    var h=rows[i];
     var w=h.result&&h.result.indexOf("TP")>-1;
     var dc=h.action==="BUY"?"buy":"sell";
     var isManual=h.result&&h.result.indexOf("MANUAL")>-1;var rc=w?"win":isManual?"manual":"loss";
@@ -309,6 +316,22 @@ function fxRenderHist(){
     html+="<tr><td class='muted'>"+h.closeDateTime+"</td><td class='pair'>"+h.pair+"</td><td class='"+dc+"'>"+h.action+"</td><td>"+h.entry+"</td><td>"+h.closePrice+"</td><td class='"+rc+"'>"+(pn>0?"+"+pn:pn)+"</td><td class='"+rc+"'>"+h.gainLoss+"</td><td class='"+rc+"'>"+(w?"TP HIT ✅":isManual?"MANUAL 🔵":"SL HIT ❌")+"</td></tr>";
   }
   tb.innerHTML=html;
+
+  var mw=document.getElementById("fx-hist-more-wrap");
+  var mb=document.getElementById("fx-hist-more-btn");
+  if(mw&&mb){
+    if(fxHistShown<fxHist.length){
+      mw.style.display="block";
+      mb.textContent="MORE ("+(fxHist.length-fxHistShown)+")";
+    } else {
+      mw.style.display="none";
+    }
+  }
+}
+
+function fxShowMoreHist(){
+  fxHistShown += 10;
+  fxRenderHist();
 }
 
 function fxRenderStats(){
