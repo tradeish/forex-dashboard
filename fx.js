@@ -137,11 +137,12 @@ function fxShowRelated(pair, entry){
       img.src = imgUrl;
       img.alt = title;
       img.loading = "lazy";
-      img.style.setProperty("width","58px","important");
-      img.style.setProperty("height","46px","important");
-      img.style.setProperty("max-width","58px","important");
-      img.style.setProperty("max-height","46px","important");
-      img.style.setProperty("object-fit","cover","important");
+      img.style.setProperty("width","100px","important");
+      img.style.setProperty("height","74px","important");
+      img.style.setProperty("max-width","100px","important");
+      img.style.setProperty("max-height","74px","important");
+      img.style.setProperty("object-fit","contain","important");
+      img.style.setProperty("background","rgba(128,128,128,0.08)","important");
       img.style.setProperty("border-radius","5px","important");
       imgEl.parentNode.replaceChild(img, imgEl);
     }
