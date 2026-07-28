@@ -506,3 +506,61 @@ setInterval(fxFetchHist,60000);
 setInterval(fxFetchStats,60000);
 setTimeout(fxSetTVTheme,1500);
 setTimeout(fxUpdateTVTheme,2000);
+
+/* =========================================================
+   SUBSCRIBE BOX LOGIC (new addition) — reuses FX_URL above
+   ========================================================= */
+
+function fxSubscribe(){
+  var input = document.getElementById("fx-sub-email");
+  var btn   = document.getElementById("fx-sub-btn");
+  var msg   = document.getElementById("fx-sub-msg");
+  var email = input.value.trim();
+
+  var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!re.test(email)){
+    msg.className = "fx-sub-msg err";
+    msg.textContent = "Please enter a valid email address.";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "...";
+  msg.textContent = "";
+
+  var cb = "_fxsub" + Date.now();
+  var sc = document.createElement("script");
+  var tm = setTimeout(function(){
+    cleanup();
+    showMsg("err","Something went wrong. Please try again.");
+  }, 10000);
+
+  function cleanup(){
+    clearTimeout(tm);
+    delete window[cb];
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+    btn.disabled = false;
+    btn.textContent = "Subscribe";
+  }
+
+  function showMsg(type, text){
+    msg.className = "fx-sub-msg " + type;
+    msg.textContent = text;
+  }
+
+  window[cb] = function(d){
+    cleanup();
+    if(d.status === "ok"){
+      showMsg("ok","Subscribed! You'll get an email on every new signal.");
+      input.value = "";
+    } else if(d.status === "duplicate"){
+      showMsg("ok","You're already subscribed.");
+    } else {
+      showMsg("err","Please enter a valid email address.");
+    }
+  };
+
+  sc.src = FX_URL + "?type=subscribe&email=" + encodeURIComponent(email) + "&callback=" + cb + "&t=" + Date.now();
+  sc.onerror = function(){ cleanup(); showMsg("err","Something went wrong. Please try again."); };
+  (document.head||document.body).appendChild(sc);
+}
