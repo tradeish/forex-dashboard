@@ -256,17 +256,24 @@ function fxUpdateCard(s,key){
   var rEl=document.getElementById("run-"+key);
   if(rEl){rEl.textContent=isA?"RUNNING":"";rEl.style.display=isA?"flex":"none";}
 
+  // Old wide result bar — left permanently hidden now (replaced by the
+  // compact closed-info block below, which sits in the RUNNING badge's
+  // slot instead of growing the card).
   var resDiv=document.getElementById("res-"+key);
-  if(resDiv)resDiv.className=isC?"fx-result show":"fx-result";
+  if(resDiv)resDiv.className="fx-result";
 
-  if(isC){
-    var rtEl=document.getElementById("res-txt-"+key);
-    if(rtEl){
-      rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
-      rtEl.className="fx-res-txt"+(s.closeResult==="TP"?" win":s.closeResult==="SL"?" loss":" manual");
+  var ciEl=document.getElementById("closed-info-"+key);
+  if(ciEl){
+    ciEl.style.display=isC?"flex":"none";
+    if(isC){
+      var cpEl=document.getElementById("closed-price-"+key);
+      if(cpEl){
+        cpEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
+        cpEl.className="fx-closed-price"+(s.closeResult==="TP"?" win":s.closeResult==="SL"?" loss":" manual");
+      }
+      var ctEl=document.getElementById("closed-time-"+key);
+      if(ctEl)ctEl.textContent=s.closeTime||"";
     }
-    var rcEl=document.getElementById("res-close-"+key);
-    if(rcEl)rcEl.textContent=s.closeTime?"Closed: "+s.closeTime:"";
   }
   // Signal Type
   var stEl=document.getElementById("sigtype-"+key);
