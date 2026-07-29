@@ -221,62 +221,62 @@ function fxGfetch(type){
   });
 }
 
-function fxUpdateCard(s){
-  var pair=s.pair;
+function fxUpdateCard(s,key){
+  key = key || s.pair;
   var st=s.status.toUpperCase();
   var isA=st==="ACTIVE",isC=st==="CLOSED";
   var act=s.action.toUpperCase();
 
-  var card=document.getElementById("card-"+pair);
+  var card=document.getElementById("card-"+key);
   if(!card)return;
   card.style.display="block";
   card.className="fx-card"+(isA?" active":isC?" closed":"");
 
-  var pill=document.getElementById("pill-"+pair);
+  var pill=document.getElementById("pill-"+key);
   if(pill){pill.textContent=(isA?"* ":"")+st;pill.className="fx-pill"+(isA?" active":isC?" closed":"");}
 
-  var eEl=document.getElementById("entry-"+pair);
+  var eEl=document.getElementById("entry-"+key);
   if(eEl){eEl.textContent=s.entry||"--";eEl.className="fx-cell-v "+(s.entry?"entry":"empty");}
 
-  var tEl=document.getElementById("tp-"+pair);
+  var tEl=document.getElementById("tp-"+key);
   if(tEl){tEl.textContent=s.tp||"--";tEl.className="fx-cell-v "+(s.tp?"tp":"empty");}
 
-  var slEl=document.getElementById("sl-"+pair);
+  var slEl=document.getElementById("sl-"+key);
   if(slEl){slEl.textContent=s.sl||"--";slEl.className="fx-cell-v "+(s.sl?"sl":"empty");}
 
-  var otEl=document.getElementById("ot-"+pair);
+  var otEl=document.getElementById("ot-"+key);
   if(otEl){otEl.textContent=s.openTime||"--";otEl.className="fx-cell-v "+(s.openTime?"time":"empty");}
 
-  var aEl=document.getElementById("act-"+pair);
+  var aEl=document.getElementById("act-"+key);
   if(aEl){
     aEl.textContent=act==="BUY"?"BUY":act==="SELL"?"SELL":"WAITING";
     aEl.className="fx-action"+(act==="BUY"?" buy":act==="SELL"?" sell":"");
   }
 
-  var rEl=document.getElementById("run-"+pair);
+  var rEl=document.getElementById("run-"+key);
   if(rEl){rEl.textContent=isA?"RUNNING":"";rEl.style.display=isA?"flex":"none";}
 
-  var resDiv=document.getElementById("res-"+pair);
+  var resDiv=document.getElementById("res-"+key);
   if(resDiv)resDiv.className=isC?"fx-result show":"fx-result";
 
   if(isC){
-    var rtEl=document.getElementById("res-txt-"+pair);
+    var rtEl=document.getElementById("res-txt-"+key);
     if(rtEl){
       rtEl.textContent="CLOSED"+(s.closePrice?" @ "+s.closePrice:"");
       rtEl.className="fx-res-txt"+(s.closeResult==="TP"?" win":s.closeResult==="SL"?" loss":" manual");
     }
-    var rcEl=document.getElementById("res-close-"+pair);
+    var rcEl=document.getElementById("res-close-"+key);
     if(rcEl)rcEl.textContent=s.closeTime?"Closed: "+s.closeTime:"";
   }
   // Signal Type
-  var stEl=document.getElementById("sigtype-"+pair);
+  var stEl=document.getElementById("sigtype-"+key);
   if(stEl){
     stEl.textContent=s.signalType||"";
     if(s.signalType){stEl.style.setProperty("display","flex","important");}
   }
 
   // NEW SIGNAL badge — show for 5 min after open time
-  var nbEl=document.getElementById("new-badge-"+pair);
+  var nbEl=document.getElementById("new-badge-"+key);
   if(nbEl){
     var showNew=false;
     if(s.openTime && isA){
@@ -294,7 +294,25 @@ function fxUpdateCard(s){
   }
 }
 
+// Renames every id inside a cloned card (including the card's own id) from
+// the "...-PAIR" pattern to "...-PAIR_ROW", so a cloned card never collides
+// with the original template card's ids.
+function fxRenameCloneIds(root, pair, newKey){
+  var re = new RegExp("-"+pair+"$");
+  if(root.id) root.id = root.id.replace(re, "-"+newKey);
+  var all = root.querySelectorAll("[id]");
+  for(var i=0;i<all.length;i++){
+    all[i].id = all[i].id.replace(re, "-"+newKey);
+  }
+}
+
 function fxRenderCards(){
+  // Remove clones created in the previous render cycle before rebuilding
+  var oldClones = document.querySelectorAll('.fx-card[data-fx-clone="1"]');
+  for(var k=0;k<oldClones.length;k++){
+    oldClones[k].parentNode.removeChild(oldClones[k]);
+  }
+
   var allCards=document.querySelectorAll(".fx-card");
   for(var i=0;i<allCards.length;i++){allCards[i].style.display="none";}
 
@@ -305,15 +323,48 @@ function fxRenderCards(){
   }
   if(noSig)noSig.style.display="none";
 
-  var activeN=0;
+  // Group live signals by pair, so multiple concurrent signals on the
+  // same pair each get their own card instead of overwriting one another
+  var groups={};
   for(var j=0;j<fxLive.length;j++){
-    fxUpdateCard(fxLive[j]);
-    if(fxLive[j].status.toUpperCase()==="ACTIVE")activeN++;
-    fxLoadRelated(fxLive[j].pair);
+    var p=fxLive[j].pair;
+    if(!groups[p])groups[p]=[];
+    groups[p].push(fxLive[j]);
   }
+
+  var activeN=0;
+  for(var pairKey in groups){
+    var sigs=groups[pairKey];
+    var originalCard=document.getElementById("card-"+pairKey);
+    if(!originalCard)continue;
+    var insertAfter=originalCard;
+
+    for(var s=0;s<sigs.length;s++){
+      var sig=sigs[s];
+      if(sig.status.toUpperCase()==="ACTIVE")activeN++;
+
+      if(s===0){
+        // First signal for this pair uses the pair's original template card
+        fxUpdateCard(sig, pairKey);
+        fxLoadRelated(pairKey);
+      } else {
+        // Extra concurrent signal on the same pair — clone the template
+        // card so it gets its own fully independent card on the page
+        var key=pairKey+"_"+sig.row;
+        var clone=originalCard.cloneNode(true);
+        clone.dataset.fxClone="1";
+        fxRenameCloneIds(clone, pairKey, key);
+        insertAfter.parentNode.insertBefore(clone, insertAfter.nextSibling);
+        insertAfter=clone;
+        fxUpdateCard(sig, key);
+      }
+    }
+  }
+
   var ael=document.getElementById("fx-active");
   if(ael)ael.textContent=activeN;
 }
+
 
 function fxRenderHist(){
   var tb=document.getElementById("fx-hist");
