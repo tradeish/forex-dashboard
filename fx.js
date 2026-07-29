@@ -307,21 +307,7 @@ function fxRenameCloneIds(root, pair, newKey){
 }
 
 function fxRenderCards(){
-  // Remove clones created in the previous render cycle before rebuilding
-  var oldClones = document.querySelectorAll('.fx-card[data-fx-clone="1"]');
-  for(var k=0;k<oldClones.length;k++){
-    oldClones[k].parentNode.removeChild(oldClones[k]);
-  }
-
-  var allCards=document.querySelectorAll(".fx-card");
-  for(var i=0;i<allCards.length;i++){allCards[i].style.display="none";}
-
   var noSig=document.getElementById("fx-no-signal");
-  if(!fxLive.length){
-    if(noSig)noSig.style.display="block";
-    return;
-  }
-  if(noSig)noSig.style.display="none";
 
   // Group live signals by pair, so multiple concurrent signals on the
   // same pair each get their own card instead of overwriting one another
@@ -331,6 +317,27 @@ function fxRenderCards(){
     if(!groups[p])groups[p]=[];
     groups[p].push(fxLive[j]);
   }
+
+  // Remove only clones whose signal is no longer live (closed & cleared,
+  // etc). Clones that are still live are left alone so their embedded
+  // TradingView chart never gets reloaded/flickered on every refresh.
+  var existingClones = document.querySelectorAll('.fx-card[data-fx-clone="1"]');
+  for(var c=0;c<existingClones.length;c++){
+    var cloneKey = existingClones[c].dataset.fxKey;
+    var stillLive = fxLive.some(function(s){ return (s.pair+"_"+s.row)===cloneKey; });
+    if(!stillLive){
+      existingClones[c].parentNode.removeChild(existingClones[c]);
+    }
+  }
+
+  var allCards=document.querySelectorAll(".fx-card");
+  for(var i=0;i<allCards.length;i++){allCards[i].style.display="none";}
+
+  if(!fxLive.length){
+    if(noSig)noSig.style.display="block";
+    return;
+  }
+  if(noSig)noSig.style.display="none";
 
   var activeN=0;
   for(var pairKey in groups){
@@ -347,14 +354,20 @@ function fxRenderCards(){
         // First signal for this pair uses the pair's original template card
         fxUpdateCard(sig, pairKey);
         fxLoadRelated(pairKey);
+        insertAfter=originalCard;
       } else {
-        // Extra concurrent signal on the same pair — clone the template
-        // card so it gets its own fully independent card on the page
+        // Extra concurrent signal on the same pair — reuse its clone card
+        // if one already exists (created on an earlier cycle) instead of
+        // recreating it, so its embedded chart iframe stays untouched
         var key=pairKey+"_"+sig.row;
-        var clone=originalCard.cloneNode(true);
-        clone.dataset.fxClone="1";
-        fxRenameCloneIds(clone, pairKey, key);
-        insertAfter.parentNode.insertBefore(clone, insertAfter.nextSibling);
+        var clone=document.getElementById("card-"+key);
+        if(!clone){
+          clone=originalCard.cloneNode(true);
+          clone.dataset.fxClone="1";
+          clone.dataset.fxKey=key;
+          fxRenameCloneIds(clone, pairKey, key);
+          insertAfter.parentNode.insertBefore(clone, insertAfter.nextSibling);
+        }
         insertAfter=clone;
         fxUpdateCard(sig, key);
       }
