@@ -246,18 +246,17 @@ function fxTick(){
   var day=n.getUTCDay(); // 0=Sun, 6=Sat
   var isWeekend=(day===0||(day===5&&t>=1320)||(day===6));
 
-  // Market open/closed/weekend
+  // Market open/closed/weekend — forex trades continuously Mon-Thu 24h,
+  // so outside the real weekend window it is always open, never "closed"
+  // mid-week.
   var mkt=document.getElementById("fx-mkt-status");
   if(mkt){
     if(isWeekend){
       mkt.textContent="WEEKEND CLOSED";
       mkt.className="fx-mkt-weekend";
-    } else if(t>=0&&t<1320){
+    } else {
       mkt.textContent="MARKET OPEN";
       mkt.className="fx-mkt-open";
-    } else {
-      mkt.textContent="MARKET CLOSED";
-      mkt.className="fx-mkt-closed";
     }
   }
 
@@ -267,11 +266,11 @@ function fxTick(){
     se.className="fx-session off";
     se.textContent="WEEKEND CLOSED";
   }
-  else if(t>=480&&t<540){se.className="fx-session";se.textContent="OVERLAP SESSION";}
-  else if(t>=480&&t<780){se.className="fx-session";se.textContent="LONDON SESSION";}
-  else if(t>=780&&t<960){se.className="fx-session";se.textContent="NEW YORK SESSION";}
-  else if(t>=0&&t<480||t>=1380){se.className="fx-session";se.textContent="TOKYO SESSION";}
-  else{se.className="fx-session off";se.textContent="MARKET CLOSED";}
+  // Full 24h weekday coverage, Asian -> European -> Euro/US overlap -> US -> Asian again
+  else if(t>=480&&t<780){se.className="fx-session";se.textContent="EUROPEAN SESSION";}
+  else if(t>=780&&t<1020){se.className="fx-session";se.textContent="EUROPEAN-US OVERLAP";}
+  else if(t>=1020&&t<1320){se.className="fx-session";se.textContent="US SESSION";}
+  else{se.className="fx-session";se.textContent="ASIAN SESSION";} // 22:00-08:00 UTC
 }
 
 function fxGfetch(type){
