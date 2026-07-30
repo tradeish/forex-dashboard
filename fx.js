@@ -193,6 +193,43 @@ function fxShowRelated(pair, entry){
   if(descEl)descEl.textContent = (dateStr ? "🕐 "+dateStr+"  " : "") + desc;
 }
 
+// Clones (extra concurrent signals on the same pair) never run their own
+// related-post fetch — the article is the same for the pair either way, so
+// just copy whatever the primary card has loaded into the clone's slot.
+// Safe to call every render cycle: does nothing until the primary succeeds.
+function fxSyncRelatedToClone(pairKey, key){
+  var srcRel = document.getElementById("related-"+pairKey);
+  var dstRel = document.getElementById("related-"+key);
+  if(!srcRel || !dstRel) return;
+  if(srcRel.className.indexOf("show") === -1) return; // primary hasn't loaded yet
+
+  dstRel.href = srcRel.href;
+  dstRel.className = srcRel.className;
+
+  var srcImg = document.getElementById("related-img-"+pairKey);
+  var dstImg = document.getElementById("related-img-"+key);
+  if(srcImg && dstImg && srcImg.tagName === "IMG"){
+    if(dstImg.tagName !== "IMG"){
+      var img = document.createElement("img");
+      img.className = "fx-related-img";
+      img.id = "related-img-"+key;
+      img.loading = "lazy";
+      dstImg.parentNode.replaceChild(img, dstImg);
+      dstImg = img;
+    }
+    dstImg.src = srcImg.src;
+    dstImg.alt = srcImg.alt;
+  }
+
+  var srcTitle = document.getElementById("related-title-"+pairKey);
+  var dstTitle = document.getElementById("related-title-"+key);
+  if(srcTitle && dstTitle) dstTitle.textContent = srcTitle.textContent;
+
+  var srcDesc = document.getElementById("related-desc-"+pairKey);
+  var dstDesc = document.getElementById("related-desc-"+key);
+  if(srcDesc && dstDesc) dstDesc.textContent = srcDesc.textContent;
+}
+
 var FX_COLORS=["#c9a84c","#4aaa4a","#5a8adc","#cc5555","#aa7acc","#5abaaa","#dc8a5a","#8adc5a","#dc5aaa","#5adcdc","#dcdc5a","#aa5a5a","#5a5adc","#aa8a5a"];
 var fxLive=[],fxHist=[],fxStats={},fxPlChart=null,fxDonut=null,fxPie=null,fxTab="1M",fxCbN=0;
 var fxHistShown=5;
@@ -405,6 +442,7 @@ function fxRenderCards(){
         }
         insertAfter=clone;
         fxUpdateCard(sig, key);
+        fxSyncRelatedToClone(pairKey, key);
       }
     }
   }
