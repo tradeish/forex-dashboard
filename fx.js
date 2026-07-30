@@ -39,19 +39,44 @@ function fxLoadRelated(pair){
   if(fxRelatedLoaded[pair])return;
   var labels = FX_RELATED_LABELS[pair];
   if(!labels||!labels.length)return;
-  
+
+  var relEl = document.getElementById("related-"+pair);
+  if(relEl) relEl.style.display = "";
+
   // Try first label
   fxFetchRelatedLabel(pair, labels, 0);
 }
 
 function fxFetchRelatedLabel(pair, labels, idx){
-  if(idx >= labels.length)return;
+  if(idx >= labels.length){
+    // Tried every label for this pair and found nothing usable — hide the
+    // box instead of leaving it looking broken (empty title/desc, dead link)
+    var relEl = document.getElementById("related-"+pair);
+    if(relEl) relEl.style.display = "none";
+    return;
+  }
   var label = labels[idx];
   var url = FX_BLOG+"/feeds/posts/summary/-/"+encodeURIComponent(label)+"?alt=json&max-results=1";
   
   var sc = document.createElement("script");
   var cbName = "_fxrel_"+pair+"_"+idx;
+  var done = false;
+
+  // If the request hangs (no callback AND no error event — this can happen
+  // if the feed responds with something that isn't valid JS, e.g. during a
+  // temporary rate-limit), don't get stuck forever — move on after 8s.
+  var tm = setTimeout(function(){
+    if(done)return;
+    done = true;
+    if(sc.parentNode)sc.parentNode.removeChild(sc);
+    delete window[cbName];
+    fxFetchRelatedLabel(pair, labels, idx+1);
+  }, 8000);
+
   window[cbName] = function(data){
+    if(done)return;
+    done = true;
+    clearTimeout(tm);
     if(sc.parentNode)sc.parentNode.removeChild(sc);
     delete window[cbName];
     try{
@@ -69,6 +94,9 @@ function fxFetchRelatedLabel(pair, labels, idx){
   };
   sc.src = url + "&callback="+cbName;
   sc.onerror = function(){
+    if(done)return;
+    done = true;
+    clearTimeout(tm);
     if(sc.parentNode)sc.parentNode.removeChild(sc);
     delete window[cbName];
     fxFetchRelatedLabel(pair, labels, idx+1);
