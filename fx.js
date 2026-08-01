@@ -135,14 +135,14 @@ function fxShowRelated(pair, entry){
   if(!imgUrl && entry.media$thumbnail && entry.media$thumbnail.url){
     imgUrl = entry.media$thumbnail.url;
   }
-  if(imgUrl){
-    imgUrl = imgUrl
-      .replace(/\/s\d+(-c)?(-rw)?\//g, "/s1600/")
-      .replace(/=s\d+(-c)?(-rw)?/g, "=s1600")
-      .replace(/\/w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?\//g, "/s1600/")
-      .replace(/=w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?/g, "=s1600")
-      .replace(/-c(?=[/?]|$)/g, "");
-  }
+if(imgUrl){
+  imgUrl = imgUrl
+    .replace(/\/s\d+(-c)?(-rw)?\//g, "/s2000/")
+    .replace(/=s\d+(-c)?(-rw)?/g, "=s2000")
+    .replace(/\/w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?\//g, "/s2000/")
+    .replace(/=w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?/g, "=s2000")
+    .replace(/-c(?=[/?]|$)/g, "");
+}
   
   // Get description
 
