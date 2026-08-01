@@ -166,10 +166,10 @@ function fxShowRelated(pair, entry){
       img.src = imgUrl;
       img.alt = title;
       img.loading = "lazy";
-      img.style.setProperty("width","100px","important");
-      img.style.setProperty("height","80px","important");
-      img.style.setProperty("max-width","100px","important");
-      img.style.setProperty("max-height","80px","important");
+      img.style.setProperty("width","130px","important");
+      img.style.setProperty("height","90px","important");
+      img.style.setProperty("max-width","130px","important");
+      img.style.setProperty("max-height","90px","important");
       img.style.setProperty("object-fit","contain","important");
       img.style.setProperty("border-radius","5px","important");
       imgEl.parentNode.replaceChild(img, imgEl);
