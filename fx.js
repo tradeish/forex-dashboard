@@ -137,10 +137,11 @@ function fxShowRelated(pair, entry){
   }
   if(imgUrl){
     imgUrl = imgUrl
-      .replace(/\/s[0-9]+(\-c)?\//g, "/s1200/")
-      .replace(/=s[0-9]+(\-c)?/g, "=s1200")
-      .replace(/\/w[0-9]+\-h[0-9]+\-p\-k\-no\-nu\//g, "/s1200/")
-      .replace(/=w[0-9]+\-h[0-9]+\-p\-k\-no\-nu/g, "=s1200");
+      .replace(/\/s\d+(-c)?(-rw)?\//g, "/s1600/")
+      .replace(/=s\d+(-c)?(-rw)?/g, "=s1600")
+      .replace(/\/w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?\//g, "/s1600/")
+      .replace(/=w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?/g, "=s1600")
+      .replace(/-c(?=[/?]|$)/g, "");
   }
   
   // Get description
