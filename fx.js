@@ -169,7 +169,7 @@ function fxShowRelated(pair, entry){
       img.style.setProperty("height","74px","important");
       img.style.setProperty("max-width","100px","important");
       img.style.setProperty("max-height","74px","important");
-      img.style.setProperty("object-fit","cover","important");
+      img.style.setProperty("object-fit","contain","important");
       img.style.setProperty("border-radius","5px","important");
       imgEl.parentNode.replaceChild(img, imgEl);
     }
