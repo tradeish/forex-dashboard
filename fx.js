@@ -137,6 +137,8 @@ function fxShowRelated(pair, entry){
   }
 if(imgUrl){
   imgUrl = imgUrl
+    .replace(/\/s\d+-w\d+-h\d+(-c)?\//g, "/s2000/")
+    .replace(/=s\d+-w\d+-h\d+(-c)?/g, "=s2000")
     .replace(/\/s\d+(-c)?(-rw)?\//g, "/s2000/")
     .replace(/=s\d+(-c)?(-rw)?/g, "=s2000")
     .replace(/\/w\d+-h\d+(-p)?(-k)?(-no)?(-nu)?(-mo)?(-rj)?\//g, "/s2000/")
