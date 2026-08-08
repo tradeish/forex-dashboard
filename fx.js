@@ -547,7 +547,11 @@ function fxRenderPL(){
     try{
       var p=r.closeDateTime.split(" ")[0].split("/");
       var tp2=r.closeDateTime.split(" ")[1]?r.closeDateTime.split(" ")[1].split(":"):[0,0];
-      var dt=new Date(Date.UTC(new Date().getFullYear(),parseInt(p[1])-1,parseInt(p[0]),parseInt(tp2[0]),parseInt(tp2[1]))).getTime();
+      // p is [dd,MM] for legacy rows or [dd,MM,yyyy] for rows written after
+      // the backend date-format fix — use the real year when it's there,
+      // only fall back to "this year" for old rows that never had one.
+      var yr=p.length>=3?parseInt(p[2]):new Date().getFullYear();
+      var dt=new Date(Date.UTC(yr,parseInt(p[1])-1,parseInt(p[0]),parseInt(tp2[0]),parseInt(tp2[1]))).getTime();
       if(dt>=cutoff)rows.push(r);
     }catch(e){rows.push(r);}
   }
@@ -584,7 +588,12 @@ function fxFetchLive(){
 }
 
 function fxFetchHist(){
-  fxGfetch("history").then(function(d){
+  // Switched from "history" (backend caps this at the most recent 20 rows)
+  // to "history_all" (no cap) — fxRenderPL() sums fxHist for the P/L chart,
+  // so with only 20 rows the cumulative pips undercounted once you had
+  // more than 20 closed trades total. This also means the "MORE" button
+  // in the history table can now page through every trade, not just 20.
+  fxGfetch("history_all").then(function(d){
     fxHist=Array.isArray(d)?d:[];
     fxRenderHist();
     fxRenderPL();
