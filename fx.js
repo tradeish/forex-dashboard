@@ -659,6 +659,46 @@ setTimeout(fxUpdateTVTheme,2000);
    SUBSCRIBE BOX LOGIC (new addition) — reuses FX_URL above
    ========================================================= */
 
+// Turns navigator.userAgent into a short human-readable label like
+// "Chrome on Windows" or "Safari on iPhone" — good enough for a
+// subscriber list, not meant to be a full UA-parsing library.
+function fxParseDevice_(){
+  var ua = navigator.userAgent || "";
+  var browser = "Unknown Browser";
+  if(/Edg\//.test(ua)) browser = "Edge";
+  else if(/OPR\//.test(ua)) browser = "Opera";
+  else if(/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = "Chrome";
+  else if(/Firefox\//.test(ua)) browser = "Firefox";
+  else if(/Safari\//.test(ua) && /Version\//.test(ua)) browser = "Safari";
+
+  var os = "Unknown OS";
+  if(/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+  else if(/Android/.test(ua)) os = "Android";
+  else if(/Windows/.test(ua)) os = "Windows";
+  else if(/Mac OS X/.test(ua)) os = "macOS";
+  else if(/Linux/.test(ua)) os = "Linux";
+
+  var deviceType = /Mobi|Android|iPhone|iPad/.test(ua) ? "Mobile" : "Desktop";
+  return browser + " on " + os + " (" + deviceType + ")";
+}
+
+// Free, no-API-key IP geolocation lookup (geojs.io — CORS enabled,
+// unlimited free tier, meant for exactly this kind of client-side use).
+// Resolves to {} on any failure so subscribing still works even if this
+// lookup is blocked, slow, or the service is briefly down.
+function fxGetGeoInfo_(){
+  return fetch("https://get.geojs.io/v1/ip/geo.json")
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      return {
+        ip: d.ip || "",
+        country: d.country || "",
+        city: d.city || ""
+      };
+    })
+    .catch(function(){ return {}; });
+}
+
 function fxSubscribe(){
   var input = document.getElementById("fx-sub-email");
   var btn   = document.getElementById("fx-sub-btn");
@@ -676,39 +716,55 @@ function fxSubscribe(){
   btn.textContent = "...";
   msg.textContent = "";
 
-  var cb = "_fxsub" + Date.now();
-  var sc = document.createElement("script");
-  var tm = setTimeout(function(){
-    cleanup();
-    showMsg("err","Something went wrong. Please try again.");
-  }, 10000);
-
-  function cleanup(){
-    clearTimeout(tm);
-    delete window[cb];
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
-    btn.disabled = false;
-    btn.textContent = "Subscribe";
-  }
-
   function showMsg(type, text){
     msg.className = "fx-sub-msg " + type;
     msg.textContent = text;
   }
 
-  window[cb] = function(d){
-    cleanup();
-    if(d.status === "ok"){
-      showMsg("ok","Subscribed! You'll get an email on every new signal.");
-      input.value = "";
-    } else if(d.status === "duplicate"){
-      showMsg("ok","You're already subscribed.");
-    } else {
-      showMsg("err","Please enter a valid email address.");
-    }
-  };
+  // Gather device + geo info first (geo lookup has its own internal
+  // failure handling — this always resolves), then fire the actual
+  // subscribe request with everything attached.
+  fxGetGeoInfo_().then(function(geo){
+    var device = fxParseDevice_();
+    var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
 
-  sc.src = FX_URL + "?type=subscribe&email=" + encodeURIComponent(email) + "&callback=" + cb + "&t=" + Date.now();
-  sc.onerror = function(){ cleanup(); showMsg("err","Something went wrong. Please try again."); };
-  (document.head||document.body).appendChild(sc);
+    var cb = "_fxsub" + Date.now();
+    var sc = document.createElement("script");
+    var tm = setTimeout(function(){
+      cleanup();
+      showMsg("err","Something went wrong. Please try again.");
+    }, 10000);
+
+    function cleanup(){
+      clearTimeout(tm);
+      delete window[cb];
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+      btn.disabled = false;
+      btn.textContent = "Subscribe";
+    }
+
+    window[cb] = function(d){
+      cleanup();
+      if(d.status === "ok"){
+        showMsg("ok","Subscribed! You'll get an email on every new signal.");
+        input.value = "";
+      } else if(d.status === "duplicate"){
+        showMsg("ok","You're already subscribed.");
+      } else {
+        showMsg("err","Please enter a valid email address.");
+      }
+    };
+
+    var url = FX_URL + "?type=subscribe&email=" + encodeURIComponent(email) +
+      "&ip=" + encodeURIComponent(geo.ip || "") +
+      "&country=" + encodeURIComponent(geo.country || "") +
+      "&city=" + encodeURIComponent(geo.city || "") +
+      "&device=" + encodeURIComponent(device) +
+      "&tz=" + encodeURIComponent(tz) +
+      "&callback=" + cb + "&t=" + Date.now();
+
+    sc.src = url;
+    sc.onerror = function(){ cleanup(); showMsg("err","Something went wrong. Please try again."); };
+    (document.head||document.body).appendChild(sc);
+  });
 }
