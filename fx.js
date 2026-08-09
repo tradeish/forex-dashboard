@@ -699,6 +699,31 @@ function fxGetGeoInfo_(){
     .catch(function(){ return {}; });
 }
 
+function fxCloseSubscribeModal_(){
+  var el = document.getElementById("fx-sub-modal-overlay");
+  if(el) el.remove();
+}
+
+function fxShowSubscribeSuccessModal_(email){
+  var overlay = document.createElement("div");
+  overlay.id = "fx-sub-modal-overlay";
+  overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px";
+  overlay.onclick = function(e){ if(e.target === overlay) fxCloseSubscribeModal_(); };
+
+  var box = document.createElement("div");
+  box.style.cssText = "background:#ffffff;border-radius:12px;max-width:380px;width:100%;padding:32px 28px;text-align:center;font-family:Arial,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.25)";
+  box.innerHTML =
+    "<div style='width:56px;height:56px;border-radius:50%;background:#e1f5ee;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:#0f6e56;line-height:1'>&#10003;</div>" +
+    "<h2 style='margin:0 0 8px;font-size:20px;color:#111111'>You're subscribed</h2>" +
+    "<p style='color:#666666;font-size:14px;margin:0 0 4px;word-break:break-all'>" + email + "</p>" +
+    "<p style='color:#666666;font-size:14px;margin:0 0 22px'>Check your inbox — we've sent a welcome email. You'll now get notified the moment a new signal opens or closes.</p>" +
+    "<button id='fx-sub-modal-ok' style='width:100%;background:#1a7a1a;color:#ffffff;border:none;height:44px;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer'>OK</button>";
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  document.getElementById("fx-sub-modal-ok").onclick = fxCloseSubscribeModal_;
+}
+
 function fxSubscribe(){
   var input = document.getElementById("fx-sub-email");
   var btn   = document.getElementById("fx-sub-btn");
@@ -746,8 +771,8 @@ function fxSubscribe(){
     window[cb] = function(d){
       cleanup();
       if(d.status === "ok"){
-        showMsg("ok","Subscribed! You'll get an email on every new signal.");
         input.value = "";
+        fxShowSubscribeSuccessModal_(email);
       } else if(d.status === "duplicate"){
         showMsg("ok","You're already subscribed.");
       } else {
