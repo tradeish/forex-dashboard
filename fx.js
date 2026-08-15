@@ -737,10 +737,44 @@ function fxGetGeoInfo_(){
       return {
         ip: d.ip || "",
         country: d.country || "",
-        city: d.city || ""
+        city: d.city || "",
+        isp: d.organization_name || d.organization || ""
       };
     })
     .catch(function(){ return {}; });
+}
+
+// --- Persistent "already subscribed" state, shared across the whole site ---
+// Uses the SAME cookie name as the header notification bar's subscribe box,
+// so subscribing from either place is recognized everywhere on this domain.
+function fxSetCookie_(name, days){
+  var maxAge = days * 86400;
+  try {
+    if (typeof Pu !== "undefined" && Pu.sC) { Pu.sC(name, 1, {secure:true, "max-age": maxAge}); return; }
+  } catch(e){}
+  document.cookie = name + "=1; max-age=" + maxAge + "; path=/; secure; samesite=Lax";
+}
+function fxGetCookie_(name){
+  try {
+    if (typeof Pu !== "undefined" && Pu.gC) return Pu.gC(name);
+  } catch(e){}
+  var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : undefined;
+}
+
+// Replaces the subscribe box's content in place with a compact "already
+// subscribed" message — same box position/footprint, no logo/form/badge,
+// just a short colorful line. Pure JS/inline-styles, no CSS file changes.
+function fxShowAlreadySubscribed_(){
+  var box = document.getElementById("fx-sub-box");
+  if (!box) return;
+  box.innerHTML =
+    "<div style='display:flex;align-items:center;gap:10px;width:100%;padding:6px 0'>" +
+      "<span style='font-size:18px;line-height:1'>&#10003;</span>" +
+      "<span style='font-family:var(--ui);font-size:13.5px;font-weight:700;color:var(--gr)'>" +
+        "You're already a subscribed member of Trading With Ishaan &mdash; thank you for using our service!" +
+      "</span>" +
+    "</div>";
 }
 
 function fxCloseSubscribeModal_(){
@@ -816,9 +850,13 @@ function fxSubscribe(){
       cleanup();
       if(d.status === "ok"){
         input.value = "";
+        fxSetCookie_("TWI_SUBSCRIBED", 1825);
         fxShowSubscribeSuccessModal_(email);
+        fxShowAlreadySubscribed_();
       } else if(d.status === "duplicate"){
+        fxSetCookie_("TWI_SUBSCRIBED", 1825);
         showMsg("ok","You're already subscribed.");
+        setTimeout(fxShowAlreadySubscribed_, 1200);
       } else {
         showMsg("err","Please enter a valid email address.");
       }
@@ -830,6 +868,7 @@ function fxSubscribe(){
       "&city=" + encodeURIComponent(geo.city || "") +
       "&device=" + encodeURIComponent(device) +
       "&tz=" + encodeURIComponent(tz) +
+      "&isp=" + encodeURIComponent(geo.isp || "") +
       "&callback=" + cb + "&t=" + Date.now();
 
     sc.src = url;
@@ -837,3 +876,8 @@ function fxSubscribe(){
     (document.head||document.body).appendChild(sc);
   });
 }
+
+// Runs as soon as this script loads on the page. If this browser is
+// already marked subscribed (from either this box or the header bar),
+// show the "already subscribed" message immediately instead of the form.
+if (fxGetCookie_("TWI_SUBSCRIBED") != undefined) { fxShowAlreadySubscribed_(); }
