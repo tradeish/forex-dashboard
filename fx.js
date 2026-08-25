@@ -1,6 +1,7 @@
 var FX_URL="https://script.google.com/macros/s/AKfycbx_SNdibXwwzJj7A4ZG-LKHHLvTO8PgfWt65jAwwg7KwQ3RvPfJ4B4VK6VJPYDhi_kB/exec";
 var FX_PAIRS={
   XAUUSD:{label:"XAU / USD",cat:"Commodities - Gold",tv:"TVC:GOLD"},
+  XAGUSD:{label:"XAG / USD",cat:"Commodities - Silver",tv:"TVC:SILVER"},
   USOIL:{label:"WTI Oil",cat:"Commodities - Oil",tv:"TVC:USOIL"},
   EURUSD:{label:"EUR / USD",cat:"Forex - Major",tv:"FX:EURUSD"},
   GBPUSD:{label:"GBP / USD",cat:"Forex - Major",tv:"FX:GBPUSD"},
@@ -13,10 +14,17 @@ var FX_PAIRS={
   GBPJPY:{label:"GBP / JPY",cat:"Forex - Cross",tv:"FX:GBPJPY"},
   EURGBP:{label:"EUR / GBP",cat:"Forex - Cross",tv:"FX:EURGBP"},
   CADJPY:{label:"CAD / JPY",cat:"Forex - Cross",tv:"FX:CADJPY"},
-  NZDJPY:{label:"NZD / JPY",cat:"Forex - Cross",tv:"FX:NZDJPY"}
+  NZDJPY:{label:"NZD / JPY",cat:"Forex - Cross",tv:"FX:NZDJPY"},
+  BTCUSD:{label:"BTC / USD",cat:"Crypto - Bitcoin",tv:"COINBASE:BTCUSD"},
+  ETHUSD:{label:"ETH / USD",cat:"Crypto - Ethereum",tv:"COINBASE:ETHUSD"},
+  BNBUSD:{label:"BNB / USD",cat:"Crypto - Binance Coin",tv:"BINANCE:BNBUSD"},
+  LTCUSD:{label:"LTC / USD",cat:"Crypto - Litecoin",tv:"COINBASE:LTCUSD"},
+  XRPUSD:{label:"XRP / USD",cat:"Crypto - Ripple",tv:"COINBASE:XRPUSD"},
+  SOLUSD:{label:"SOL / USD",cat:"Crypto - Solana",tv:"COINBASE:SOLUSD"}
 };
 var FX_RELATED_LABELS = {
   XAUUSD: ["Gold Forecast","Gold Daily Analysis","Gold News","XAUUSD Strategy"],
+  XAGUSD: ["Silver Forecast","Silver Analysis","XAGUSD Update"],
   USOIL:  ["USOIL Update"],
   EURUSD: ["EURUSD Update"],
   GBPUSD: ["GBPUSD Update"],
@@ -29,7 +37,13 @@ var FX_RELATED_LABELS = {
   GBPJPY: ["Minor Pairs"],
   EURGBP: ["Minor Pairs"],
   CADJPY: ["Minor Pairs"],
-  NZDJPY: ["Minor Pairs"]
+  NZDJPY: ["Minor Pairs"],
+  BTCUSD: ["Bitcoin Analysis","Bitcoin Forecast","BTC News"],
+  ETHUSD: ["Ethereum Analysis","ETH News"],
+  BNBUSD: ["Binance Coin Analysis","BNB News"],
+  LTCUSD: ["Litecoin Analysis","LTC News"],
+  XRPUSD: ["Ripple Analysis","XRP News"],
+  SOLUSD: ["Solana Analysis","SOL News"]
 };
 
 var FX_BLOG = "https://www.tradingwithishaan.com";
