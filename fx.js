@@ -23,8 +23,8 @@ var FX_PAIRS={
   SOLUSD:{label:"SOL / USD",cat:"Crypto - Solana",tv:"COINBASE:SOLUSD"}
 };
 var FX_RELATED_LABELS = {
-  XAUUSD: ["Gold Forecast","Gold Daily Analysis","Gold News","XAUUSD Strategy"],
-  XAGUSD: ["Silver Forecast","Silver Analysis","XAGUSD Update"],
+  XAUUSD: ["Gold Forecast"],
+  XAGUSD: ["Silver Forecast"],
   USOIL:  ["USOIL Update"],
   EURUSD: ["EURUSD Update"],
   GBPUSD: ["GBPUSD Update"],
@@ -38,12 +38,13 @@ var FX_RELATED_LABELS = {
   EURGBP: ["Minor Pairs"],
   CADJPY: ["Minor Pairs"],
   NZDJPY: ["Minor Pairs"],
-  BTCUSD: ["Bitcoin Analysis","Bitcoin Forecast","BTC News"],
-  ETHUSD: ["Ethereum Analysis","ETH News"],
-  BNBUSD: ["Binance Coin Analysis","BNB News"],
-  LTCUSD: ["Litecoin Analysis","LTC News"],
-  XRPUSD: ["Ripple Analysis","XRP News"],
-  SOLUSD: ["Solana Analysis","SOL News"]
+  BTCUSD: ["Crypto Universe"],
+  ETHUSD: ["Crypto Universe"],
+  BNBUSD: ["Crypto Universe"],
+  LTCUSD: ["Crypto Universe"],
+  XRPUSD: ["Crypto Universe"],
+  DOGEUSD: ["Crypto Universe"],
+  SOLUSD: ["Crypto Universe"]
 };
 
 var FX_BLOG = "https://www.tradingwithishaan.com";
