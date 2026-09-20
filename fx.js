@@ -38,12 +38,12 @@ var FX_RELATED_LABELS = {
   EURGBP: ["Minor Pairs"],
   CADJPY: ["Minor Pairs"],
   NZDJPY: ["Minor Pairs"],
-  BTCUSD: ["Crypto Universe"],
+  BTCUSD: ["Bitcoin (BTC)"],
   ETHUSD: ["Crypto Universe"],
   BNBUSD: ["Crypto Universe"],
-  LTCUSD: ["Crypto Universe"],
-  XRPUSD: ["Crypto Universe"],
-  SOLUSD: ["Crypto Universe"]
+  LTCUSD: ["Top Altcoins"],
+  XRPUSD: ["Top Altcoins"],
+  SOLUSD: ["Top Altcoins"]
 };
 
 var FX_BLOG = "https://www.tradingwithishaan.com";
