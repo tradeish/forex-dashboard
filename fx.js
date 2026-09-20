@@ -43,7 +43,6 @@ var FX_RELATED_LABELS = {
   BNBUSD: ["Crypto Universe"],
   LTCUSD: ["Crypto Universe"],
   XRPUSD: ["Crypto Universe"],
-  DOGEUSD: ["Crypto Universe"],
   SOLUSD: ["Crypto Universe"]
 };
 
