@@ -424,6 +424,16 @@ function fxUpdateCard(s,key){
     }
     nbEl.style.setProperty("display",showNew?"inline-block":"none","important");
   }
+
+  // Article toggle — driven by LIVE_SIGNALS col M ("Show Article"),
+  // default OFF. Uses a separate hide-only class so we never wipe out the
+  // "show" class fxShowRelated already set — toggling this OFF then back
+  // ON restores the previously-loaded article instantly, with no refetch.
+  var relBoxEl=document.getElementById("related-"+key);
+  if(relBoxEl){
+    if(s.showArticle==="ON") relBoxEl.classList.remove("fx-article-off");
+    else relBoxEl.classList.add("fx-article-off");
+  }
 }
 
 // Renames every id inside a cloned card (including the card's own id) from
@@ -485,7 +495,10 @@ function fxRenderCards(){
       if(s===0){
         // First signal for this pair uses the pair's original template card
         fxUpdateCard(sig, pairKey);
-        fxLoadRelated(pairKey);
+        // Only fetch/attach the related-article post when this signal's
+        // "Show Article" switch is ON (Sheet col M / mobile panel toggle).
+        // Default OFF — no fetch happens at all, keeping the box blank.
+        if(sig.showArticle==="ON") fxLoadRelated(pairKey);
         insertAfter=originalCard;
       } else {
         // Extra concurrent signal on the same pair — reuse its clone card
@@ -502,7 +515,7 @@ function fxRenderCards(){
         }
         insertAfter=clone;
         fxUpdateCard(sig, key);
-        fxSyncRelatedToClone(pairKey, key);
+        if(sig.showArticle==="ON") fxSyncRelatedToClone(pairKey, key);
       }
     }
   }
